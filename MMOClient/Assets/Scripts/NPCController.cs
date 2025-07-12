@@ -8,6 +8,6 @@ public class NPCController : NetworkedEntity
     {
         var floating = GetComponent<FloatingName>();
         if (floating != null)
-            floating.entityName = npcName;
+            floating.SetName(npcName);
     }
 }

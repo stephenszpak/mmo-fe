@@ -1,26 +1,43 @@
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class FloatingName : MonoBehaviour
 {
     public string entityName = "NPC";
-    public Vector3 offset = new Vector3(0, 2f, 0);
-    private TextMesh textMesh;
+    public Vector3 offset = new Vector3(0, 2.5f, 0);
+    public float scale = 0.05f;
+
+    private TextMeshProUGUI textMesh;
 
     void Start()
     {
-        GameObject go = new GameObject("NameTag");
-        go.transform.SetParent(transform);
-        go.transform.localPosition = offset;
-        textMesh = go.AddComponent<TextMesh>();
+        GameObject canvasGO = new GameObject("NameCanvas");
+        canvasGO.transform.SetParent(transform);
+        canvasGO.transform.localPosition = offset;
+        canvasGO.transform.localRotation = Quaternion.identity;
+        canvasGO.transform.localScale = Vector3.one * scale;
+
+        var canvas = canvasGO.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.WorldSpace;
+
+        canvasGO.AddComponent<FaceCamera>();
+
+        GameObject textGO = new GameObject("NameLabel");
+        textGO.transform.SetParent(canvasGO.transform, false);
+        textMesh = textGO.AddComponent<TextMeshProUGUI>();
         textMesh.text = entityName;
-        textMesh.anchor = TextAnchor.MiddleCenter;
-        textMesh.characterSize = 0.2f;
-        textMesh.color = Color.white;
+        textMesh.alignment = TextAlignmentOptions.Center;
+        textMesh.fontSize = 24;
+
+        var rect = textMesh.rectTransform;
+        rect.sizeDelta = new Vector2(200, 50);
     }
 
-    void LateUpdate()
+    public void SetName(string newName)
     {
-        if (Camera.main != null)
-            textMesh.transform.rotation = Camera.main.transform.rotation;
+        entityName = newName;
+        if (textMesh != null)
+            textMesh.text = entityName;
     }
 }
