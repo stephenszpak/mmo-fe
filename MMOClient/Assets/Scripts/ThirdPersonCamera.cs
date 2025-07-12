@@ -8,6 +8,8 @@ public class ThirdPersonCamera : MonoBehaviour
     public float maxDistance = 10f;
     public float zoomSpeed = 2f;
     public float rotationSpeed = 120f;
+    public float mouseSensitivityX = 1f;
+    public float mouseSensitivityY = 1f;
     public float followSmooth = 10f;
 
     private float yaw;
@@ -41,15 +43,27 @@ public class ThirdPersonCamera : MonoBehaviour
 
     void HandleInput()
     {
+        if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+
+        if (Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1))
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+
         if (Input.GetMouseButton(1))
         {
-            yaw += Input.GetAxis("Mouse X") * rotationSpeed * Time.deltaTime;
-            pitch -= Input.GetAxis("Mouse Y") * rotationSpeed * Time.deltaTime;
+            yaw += Input.GetAxis("Mouse X") * mouseSensitivityX * rotationSpeed * Time.deltaTime;
+            pitch -= Input.GetAxis("Mouse Y") * mouseSensitivityY * rotationSpeed * Time.deltaTime;
             pitch = Mathf.Clamp(pitch, -40f, 80f);
         }
         else if (Input.GetMouseButton(0))
         {
-            yaw += Input.GetAxis("Mouse X") * rotationSpeed * Time.deltaTime;
+            yaw += Input.GetAxis("Mouse X") * mouseSensitivityX * rotationSpeed * Time.deltaTime;
         }
 
         distance -= Input.GetAxis("Mouse ScrollWheel") * zoomSpeed;
