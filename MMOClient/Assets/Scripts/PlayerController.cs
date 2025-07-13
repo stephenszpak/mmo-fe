@@ -13,6 +13,9 @@ public class PlayerController : NetworkedEntity
 
     private Vector3 lastPosition;
     private UdpMovementSender udpSender;
+    private bool jumpQueued = false;
+    private float jumpQueueTimer = 0f;
+    private const float jumpQueueTime = 0.2f; // seconds to buffer jump input
 
     void Awake()
     {
@@ -23,6 +26,19 @@ public class PlayerController : NetworkedEntity
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            jumpQueued = true;
+            jumpQueueTimer = jumpQueueTime;
+        }
+
+        if (jumpQueued)
+        {
+            jumpQueueTimer -= Time.deltaTime;
+            if (jumpQueueTimer <= 0f)
+                jumpQueued = false;
+        }
+
         HandleMovement();
     }
 
@@ -58,9 +74,10 @@ public class PlayerController : NetworkedEntity
         if (controller.isGrounded && velocity.y < 0)
             velocity.y = -2f;
 
-        if (Input.GetKeyDown(KeyCode.Space) && controller.isGrounded)
+        if (jumpQueued && controller.isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            jumpQueued = false;
         }
 
         velocity.y += gravity * Time.deltaTime;
