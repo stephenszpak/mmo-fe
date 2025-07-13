@@ -66,3 +66,22 @@ camera and the scroll wheel to zoom.
 
 All network calls are stubbed (`NetworkedEntity` class). Integrate these hooks
 with your Elixir backend to synchronize player and NPC states.
+
+### Chat System
+This repo now includes a lightweight chat client for talking to a Phoenix
+backend over WebSockets. The `PhoenixChatClient` component handles the Phoenix
+socket protocol while `ChatUIManager` drives a simple Unity UI.
+
+1. Download the open source **websocket-sharp** library and place the DLL inside
+   `Assets/Plugins/`.
+2. Add the `PhoenixChatClient` and `ChatUIManager` scripts from `Assets/Scripts`
+   to your scene.
+3. Create a UI panel anchored to the edge of the screen containing a scrollable
+   `Text` element for history, an `InputField` and a **Send** button.
+4. Assign the UI elements and the `PhoenixChatClient` reference on the
+   `ChatUIManager` component.
+5. Press Play and type messages. Use `/w <target> <message>` in the input field
+   to send a whisper (topic `chat:whisper:<target>`).
+
+Messages are sent in Phoenix JSON format and the client automatically joins the
+`"chat:global"` channel on connect.
