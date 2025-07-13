@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class ChatUIManager : MonoBehaviour
 {
     public PhoenixChatClient chatClient;
-    public Text chatHistoryText;
+    public TMP_Text chatHistoryText;
     public ScrollRect scrollRect;
-    public InputField inputField;
+    public TMP_InputField inputField;
     public Button sendButton;
     public string playerName = "player1";
 
@@ -35,6 +36,15 @@ public class ChatUIManager : MonoBehaviour
             SendFromInput();
     }
 
+    void Update()
+    {
+        if (inputField != null && inputField.isFocused &&
+            (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)))
+        {
+            SendFromInput();
+        }
+    }
+
     void SendFromInput()
     {
         if (string.IsNullOrEmpty(inputField.text))
@@ -42,7 +52,7 @@ public class ChatUIManager : MonoBehaviour
 
         string to = chatClient != null ? chatClient.globalTopic : "chat:global";
         string message = inputField.text;
-
+        Debug.Log($"Sending message: {message} to: {to}");
         if (message.StartsWith("/w "))
         {
             var parts = message.Split(new char[] { ' ' }, 3);
