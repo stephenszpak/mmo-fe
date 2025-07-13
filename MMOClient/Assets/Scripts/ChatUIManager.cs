@@ -20,8 +20,6 @@ public class ChatUIManager : MonoBehaviour
         }
         if (sendButton != null)
             sendButton.onClick.AddListener(SendFromInput);
-        if (inputField != null)
-            inputField.onEndEdit.AddListener(OnEndEdit);
     }
 
     void OnDestroy()
@@ -30,11 +28,6 @@ public class ChatUIManager : MonoBehaviour
             chatClient.OnChatMessage -= OnChatMessage;
     }
 
-    void OnEndEdit(string text)
-    {
-        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-            SendFromInput();
-    }
 
     void Update()
     {
@@ -50,9 +43,11 @@ public class ChatUIManager : MonoBehaviour
         if (string.IsNullOrEmpty(inputField.text))
             return;
 
+        Debug.Log("\uD83D\uDCE4 SendFromInput called");
+        Debug.Log($"\u27A1\uFE0F Message typed: {inputField.text}");
+
         string to = chatClient != null ? chatClient.globalTopic : "chat:global";
         string message = inputField.text;
-        Debug.Log($"Sending message: {message} to: {to}");
         if (message.StartsWith("/w "))
         {
             var parts = message.Split(new char[] { ' ' }, 3);
