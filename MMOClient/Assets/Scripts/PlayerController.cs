@@ -11,9 +11,14 @@ public class PlayerController : NetworkedEntity
     private Vector3 velocity;
     private float gravity = -9.81f;
 
+    private Vector3 lastPosition;
+    private UdpMovementSender udpSender;
+
     void Awake()
     {
         controller = GetComponent<CharacterController>();
+        udpSender = GetComponent<UdpMovementSender>();
+        lastPosition = transform.position;
     }
 
     void Update()
@@ -45,8 +50,11 @@ public class PlayerController : NetworkedEntity
             moveDir = forward * moveDir.z + right * moveDir.x;
         }
 
-        controller.Move(moveDir * moveSpeed * Time.deltaTime);
+        // Apply movement
+        Vector3 movement = moveDir * moveSpeed * Time.deltaTime;
+        controller.Move(movement);
 
+        // Apply gravity and jumping
         if (controller.isGrounded && velocity.y < 0)
             velocity.y = -2f;
 
@@ -57,5 +65,15 @@ public class PlayerController : NetworkedEntity
 
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
+
+        // 🔁 Send UDP packet if position changed
+        Vector3 currentPosition = transform.position;
+        Vector3 delta = currentPosition - lastPosition;
+
+        if (udpSender != null && delta.sqrMagnitude > 0.0001f)
+        {
+            udpSender.SendMovement(delta);
+            lastPosition = currentPosition;
+        }
     }
 }
