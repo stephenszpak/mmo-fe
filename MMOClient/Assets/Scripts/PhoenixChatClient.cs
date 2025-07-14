@@ -2,6 +2,7 @@ using UnityEngine;
 // Requires the websocket-sharp plugin in Assets/Plugins.
 using WebSocketSharp;
 using System;
+using Newtonsoft.Json;
 
 [Serializable]
 public class ChatPayload
@@ -70,14 +71,25 @@ public class PhoenixChatClient : MonoBehaviour
     {
         if (!e.IsText)
             return;
-        PhoenixMessage msg = JsonUtility.FromJson<PhoenixMessage>(e.Data);
-        if (msg.@event == "message")
+
+        try
         {
-            OnChatMessage?.Invoke(msg);
+            Debug.Log($"Raw message: {e.Data}");
+            PhoenixMessage msg = JsonConvert.DeserializeObject<PhoenixMessage>(e.Data);
+            Debug.Log("Parsed WebSocket message successfully");
+
+            if (msg.@event == "message")
+            {
+                OnChatMessage?.Invoke(msg);
+            }
+            else if (msg.@event == "phx_reply")
+            {
+                Debug.Log("Join reply for " + msg.topic);
+            }
         }
-        else if (msg.@event == "phx_reply")
+        catch (Exception ex)
         {
-            Debug.Log("Join reply for " + msg.topic);
+            Debug.LogError($"Failed to parse message: {ex}\nRaw: {e.Data}");
         }
     }
 
