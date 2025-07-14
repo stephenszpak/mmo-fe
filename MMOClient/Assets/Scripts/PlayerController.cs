@@ -8,8 +8,10 @@ public class PlayerController : NetworkedEntity
     public Transform cameraPivot;
 
     private CharacterController controller;
+    private Animator animator;
     private Vector3 velocity;
     private float gravity = -9.81f;
+    private float animSpeed = 0f;
 
     private Vector3 lastPosition;
     private UdpMovementSender udpSender;
@@ -20,6 +22,7 @@ public class PlayerController : NetworkedEntity
     void Awake()
     {
         controller = GetComponent<CharacterController>();
+        animator = GetComponent<Animator>();
         udpSender = GetComponent<UdpMovementSender>();
         lastPosition = transform.position;
     }
@@ -40,6 +43,7 @@ public class PlayerController : NetworkedEntity
         }
 
         HandleMovement();
+        UpdateAnimator();
     }
 
     void HandleMovement()
@@ -78,6 +82,8 @@ public class PlayerController : NetworkedEntity
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
             jumpQueued = false;
+            if (animator != null)
+                animator.SetBool("isJumping", true);
         }
 
         velocity.y += gravity * Time.deltaTime;
@@ -92,5 +98,21 @@ public class PlayerController : NetworkedEntity
             udpSender.SendMovement(delta);
             lastPosition = currentPosition;
         }
+    }
+
+    void UpdateAnimator()
+    {
+        if (animator == null)
+            return;
+
+        Vector3 horizVel = new Vector3(controller.velocity.x, 0f, controller.velocity.z);
+        float targetSpeed = horizVel.magnitude;
+        animSpeed = Mathf.Lerp(animSpeed, targetSpeed, Time.deltaTime * 10f);
+        animator.SetFloat("speed", animSpeed);
+
+        if (controller.isGrounded)
+            animator.SetBool("isJumping", false);
+        else
+            animator.SetBool("isJumping", true);
     }
 }
