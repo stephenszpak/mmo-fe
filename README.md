@@ -73,10 +73,11 @@ backend over WebSockets. The `PhoenixChatClient` component handles the Phoenix
 socket protocol while `ChatUIManager` drives a simple Unity UI.
 
 1. Download the open source **websocket-sharp** library and place the DLL inside
-   `Assets/Plugins/`. A simple stub implementation (`WebSocketSharpPlaceholder.cs`)
-   lives in `Assets/Scripts` so the project can compile without the DLL, but it
-   only provides no-op networking. Replace it with the real library for actual
-   WebSocket communication.
+   `Assets/Plugins/`. This plugin provides the WebSocket implementation used by
+   `PhoenixChatClient` to talk to the backend.
+   Make sure the **API Compatibility Level** is set to `.NET Framework 4.x`
+   (or `.NET Standard 2.0` in Unity 2022+) under **Edit → Project Settings →
+   Player** so the DLL loads correctly.
 2. Add the `PhoenixChatClient` and `ChatUIManager` scripts from `Assets/Scripts`
    to your scene.
 3. Create a UI panel anchored to the edge of the screen containing a scrollable

@@ -1,4 +1,5 @@
 using UnityEngine;
+// Requires the websocket-sharp plugin in Assets/Plugins.
 using WebSocketSharp;
 using System;
 
@@ -61,6 +62,7 @@ public class PhoenixChatClient : MonoBehaviour
         };
         socket.OnMessage += (s, e) => HandleMessage(e);
         socket.OnError += (s, e) => Debug.LogError("WebSocket error: " + e.Message);
+        socket.OnClose += (s, e) => Debug.Log($"WebSocket closed: {e.Reason}");
         socket.ConnectAsync();
     }
 
