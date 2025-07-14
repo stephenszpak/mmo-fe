@@ -13,6 +13,8 @@ public class ChatUIManager : MonoBehaviour
 
     void Start()
     {
+
+        Debug.Log("✅ ChatUIManager STARTED");
         if (chatClient != null)
         {
             chatClient.playerName = playerName;
@@ -34,6 +36,7 @@ public class ChatUIManager : MonoBehaviour
         if (inputField != null && inputField.isFocused &&
             (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)))
         {
+            Debug.Log("⏎ Enter detected while input is focused");
             SendFromInput();
         }
     }

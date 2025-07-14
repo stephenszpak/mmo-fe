@@ -6,7 +6,7 @@ public class NetworkedEntity : MonoBehaviour
     protected virtual void SyncTransform()
     {
         // TODO: Integrate with Elixir backend
-        Debug.Log($"Syncing {name} position {transform.position}");
+        /* Debug.Log($"Syncing {name} position {transform.position}"); */
     }
 
     protected virtual void LateUpdate()
