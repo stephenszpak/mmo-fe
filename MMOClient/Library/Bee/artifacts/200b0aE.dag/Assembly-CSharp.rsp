@@ -383,6 +383,7 @@
 "Assets/Scripts/NPCController.cs"
 "Assets/Scripts/PhoenixChatClient.cs"
 "Assets/Scripts/PlayerController.cs"
+"Assets/Scripts/RemotePlayerManager.cs"
 "Assets/Scripts/ThirdPersonCamera.cs"
 "Assets/Scripts/UdpMovementSender.cs"
 "Assets/TextMesh Pro/Examples & Extras/Scripts/Benchmark01.cs"
