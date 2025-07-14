@@ -24,11 +24,35 @@ public class PlayerController : NetworkedEntity
     void Awake()
     {
         controller = GetComponent<CharacterController>();
-        animator = GetComponent<Animator>();
+
+        Transform model = transform.Find("Model");
+        if (model != null)
+            animator = model.GetComponent<Animator>();
         if (animator == null)
-            Debug.LogWarning("PlayerController could not find an Animator component on the GameObject.");
+        {
+            animator = GetComponentInChildren<Animator>();
+        }
+
+        if (animator == null)
+        {
+            Debug.LogWarning("PlayerController could not find an Animator component on the child Model GameObject.");
+        }
         else
+        {
             Debug.Log($"Animator found: {animator.runtimeAnimatorController?.name}");
+            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+            if (animator.avatar == null || !animator.avatar.isHuman || !animator.avatar.isValid)
+            {
+                Debug.LogWarning("Animator avatar is not a valid Humanoid avatar.");
+            }
+        }
+
+        Animator rootAnimator = GetComponent<Animator>();
+        if (rootAnimator != null && rootAnimator != animator)
+        {
+            Destroy(rootAnimator);
+            Debug.Log("Removed extra Animator component from root Player GameObject");
+        }
         udpSender = GetComponent<UdpMovementSender>();
         lastPosition = transform.position;
     }
@@ -126,6 +150,7 @@ public class PlayerController : NetworkedEntity
 
         bool isJumping = !controller.isGrounded;
         animator.SetBool("isJumping", isJumping);
+        animator.SetBool("isGrounded", controller.isGrounded);
         if (isJumping != lastIsJumping)
         {
             Debug.Log(isJumping ? "Airborne - setting isJumping true" : "Grounded - setting isJumping false");
