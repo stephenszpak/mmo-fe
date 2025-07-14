@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Handles spawning and movement of remote players received from the backend.
@@ -17,17 +18,32 @@ public class RemotePlayerManager : MonoBehaviour
 
     void Start()
     {
-        if (chatClient != null)
+        if (chatClient == null)
         {
-            chatClient.OnMessage += OnSocketMessage;
-            chatClient.JoinChannel($"zone:{zoneId}");
+            chatClient = FindObjectOfType<PhoenixChatClient>();
+            if (chatClient == null)
+            {
+                Debug.LogError("RemotePlayerManager: No PhoenixChatClient found");
+                return;
+            }
+            else
+            {
+                Debug.Log("RemotePlayerManager: found PhoenixChatClient automatically");
+            }
         }
+
+        chatClient.OnMessage += OnSocketMessage;
+        chatClient.JoinChannel($"zone:{zoneId}");
+        Debug.Log($"RemotePlayerManager subscribed to zone:{zoneId}");
     }
 
     void OnDestroy()
     {
         if (chatClient != null)
+        {
             chatClient.OnMessage -= OnSocketMessage;
+            Debug.Log("RemotePlayerManager unsubscribed from PhoenixChatClient");
+        }
     }
 
     // Expected payload format: { "id": "player1", "position": {"x":0,"y":0,"z":0} }
@@ -42,7 +58,11 @@ public class RemotePlayerManager : MonoBehaviour
         if (!msg.topic.StartsWith("zone:"))
             return;
 
-        if (msg.@event == "player_joined")
+        if (msg.@event == "zone_state")
+        {
+            HandleZoneState(msg.payload);
+        }
+        else if (msg.@event == "player_joined")
         {
             HandlePlayerJoined(msg.payload);
         }
@@ -64,27 +84,22 @@ public class RemotePlayerManager : MonoBehaviour
             return;
         }
 
-        // use JsonUtility to parse generic payload
-        string json = UnityEngine.JsonUtility.ToJson(payload);
-        var data = JsonUtility.FromJson<PlayerJoinData>(json);
+        // deserialize payload into strongly typed data
+        string json = payload?.ToString();
+        var data = JsonConvert.DeserializeObject<PlayerJoinData>(json);
         if (data == null || string.IsNullOrEmpty(data.id))
             return;
 
         if (remotePlayers.ContainsKey(data.id))
             return;
 
-        Transform parent = remotePlayersParent != null ? remotePlayersParent : transform;
-        GameObject obj = Instantiate(remotePlayerPrefab, parent);
-        obj.name = $"Remote_{data.id}";
-        obj.transform.position = data.position.ToVector3();
-        Debug.Log($"Spawned remote player '{data.id}' at {obj.transform.position}");
-        remotePlayers[data.id] = obj;
+        SpawnRemotePlayer(data.id, data.position.ToVector3());
     }
 
     void HandlePlayerMoved(object payload)
     {
-        string json = UnityEngine.JsonUtility.ToJson(payload);
-        var data = JsonUtility.FromJson<PlayerMoveData>(json);
+        string json = payload?.ToString();
+        var data = JsonConvert.DeserializeObject<PlayerMoveData>(json);
         if (data == null || string.IsNullOrEmpty(data.id))
             return;
         if (remotePlayers.TryGetValue(data.id, out GameObject obj))
@@ -97,8 +112,8 @@ public class RemotePlayerManager : MonoBehaviour
 
     void HandlePlayerLeft(object payload)
     {
-        string json = UnityEngine.JsonUtility.ToJson(payload);
-        var data = JsonUtility.FromJson<PlayerLeftData>(json);
+        string json = payload?.ToString();
+        var data = JsonConvert.DeserializeObject<PlayerLeftData>(json);
         if (data == null || string.IsNullOrEmpty(data.id))
             return;
         if (remotePlayers.TryGetValue(data.id, out GameObject obj))
@@ -107,6 +122,49 @@ public class RemotePlayerManager : MonoBehaviour
             remotePlayers.Remove(data.id);
             Debug.Log($"Removed remote player '{data.id}'");
         }
+    }
+
+    void HandleZoneState(object payload)
+    {
+        string json = payload?.ToString();
+        var data = JsonConvert.DeserializeObject<ZoneStateData>(json);
+        if (data == null || data.players == null)
+        {
+            Debug.LogWarning("RemotePlayerManager: invalid zone_state payload");
+            return;
+        }
+
+        foreach (var p in data.players)
+        {
+            if (p == null || string.IsNullOrEmpty(p.id))
+                continue;
+
+            Vector3 pos = p.position.ToVector3();
+            if (remotePlayers.ContainsKey(p.id))
+            {
+                remotePlayers[p.id].transform.position = pos;
+                Debug.Log($"Updated remote player '{p.id}' from zone_state");
+            }
+            else
+            {
+                SpawnRemotePlayer(p.id, pos);
+            }
+        }
+    }
+
+    void SpawnRemotePlayer(string id, Vector3 position)
+    {
+        if (remotePlayerPrefab == null)
+        {
+            Debug.LogWarning("RemotePlayerManager: remotePlayerPrefab not set");
+            return;
+        }
+
+        Transform parent = remotePlayersParent != null ? remotePlayersParent : transform;
+        GameObject obj = Instantiate(remotePlayerPrefab, position, Quaternion.identity, parent);
+        obj.name = $"Remote_{id}";
+        remotePlayers[id] = obj;
+        Debug.Log($"Spawned remote player '{id}' at {position}");
     }
 
     [System.Serializable]
@@ -127,6 +185,12 @@ public class RemotePlayerManager : MonoBehaviour
     class PlayerLeftData
     {
         public string id;
+    }
+
+    [System.Serializable]
+    class ZoneStateData
+    {
+        public PlayerJoinData[] players;
     }
 
     [System.Serializable]
