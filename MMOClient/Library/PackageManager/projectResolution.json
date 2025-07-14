@@ -19,6 +19,26 @@
       "source": "builtin",
       "testable": false
     },
+    "com.unity.textmeshpro@5.0.0": {
+      "name": "com.unity.textmeshpro",
+      "displayName": "TextMeshPro",
+      "resolvedPath": "/Users/stephenszpak/workspace/mmo-fe/MMOClient/Library/PackageCache/com.unity.textmeshpro@53f43edfd2e0",
+      "fingerprint": "53f43edfd2e0bf2438ca6e2038ba12107a181253",
+      "editorCompatibility": "2023.2.0a1",
+      "version": "5.0.0",
+      "source": "builtin",
+      "testable": false
+    },
+    "jillejr.newtonsoft.json-for-unity@https://github.com/jilleJr/Newtonsoft.Json-for-Unity.git#upm": {
+      "name": "jillejr.newtonsoft.json-for-unity",
+      "displayName": "Json.NET 10.0.3 for Unity",
+      "resolvedPath": "/Users/stephenszpak/workspace/mmo-fe/MMOClient/Library/PackageCache/jillejr.newtonsoft.json-for-unity@f2c6cb098178",
+      "fingerprint": "f2c6cb09817832dccd0600f291053d8d55298ee9",
+      "editorCompatibility": "2018.1.0a1",
+      "version": "10.0.302",
+      "source": "git",
+      "testable": false
+    },
     "com.unity.modules.accessibility@1.0.0": {
       "name": "com.unity.modules.accessibility",
       "displayName": "Accessibility",
@@ -32,16 +52,6 @@
       "displayName": "AI",
       "resolvedPath": "/Applications/Unity/Hub/Editor/6000.1.11f1/Unity.app/Contents/Resources/PackageManager/BuiltInPackages/com.unity.modules.ai",
       "version": "1.0.0",
-      "source": "builtin",
-      "testable": false
-    },
-    "com.unity.textmeshpro@5.0.0": {
-      "name": "com.unity.textmeshpro",
-      "displayName": "TextMeshPro",
-      "resolvedPath": "/Users/stephenszpak/workspace/mmo-fe/MMOClient/Library/PackageCache/com.unity.textmeshpro@53f43edfd2e0",
-      "fingerprint": "53f43edfd2e0bf2438ca6e2038ba12107a181253",
-      "editorCompatibility": "2023.2.0a1",
-      "version": "5.0.0",
       "source": "builtin",
       "testable": false
     },
