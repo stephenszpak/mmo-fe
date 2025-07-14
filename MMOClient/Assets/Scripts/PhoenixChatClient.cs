@@ -18,7 +18,8 @@ public class PhoenixMessage
 {
     public string topic;
     public string @event;
-    public ChatPayload payload;
+    // Use object so arbitrary payloads can be deserialized
+    public object payload;
     public string @ref;
     public string join_ref;
 }
@@ -46,6 +47,8 @@ public class PhoenixChatClient : MonoBehaviour
     private readonly Queue<Action> mainThreadActions = new Queue<Action>();
 
     public event Action<PhoenixMessage> OnChatMessage;
+    // Generic callback for any message received
+    public event Action<PhoenixMessage> OnMessage;
 
     void Start()
     {
@@ -92,6 +95,11 @@ public class PhoenixChatClient : MonoBehaviour
             PhoenixMessage msg = JsonConvert.DeserializeObject<PhoenixMessage>(e.Data);
             Debug.Log("Parsed WebSocket message successfully");
 
+            lock (mainThreadActions)
+            {
+                mainThreadActions.Enqueue(() => OnMessage?.Invoke(msg));
+            }
+
             if (msg.@event == "message")
             {
                 lock (mainThreadActions)
@@ -119,7 +127,7 @@ public class PhoenixChatClient : MonoBehaviour
         }
     }
 
-    void JoinChannel(string topic)
+    public void JoinChannel(string topic)
     {
         var join = new JoinMessage
         {
