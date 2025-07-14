@@ -2,6 +2,7 @@ using UnityEngine;
 // Requires the websocket-sharp plugin in Assets/Plugins.
 using WebSocketSharp;
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 [Serializable]
@@ -42,12 +43,25 @@ public class PhoenixChatClient : MonoBehaviour
 
     private WebSocket socket;
     private int refCounter = 1;
+    private readonly Queue<Action> mainThreadActions = new Queue<Action>();
 
     public event Action<PhoenixMessage> OnChatMessage;
 
     void Start()
     {
         Connect();
+    }
+
+    void Update()
+    {
+        lock (mainThreadActions)
+        {
+            while (mainThreadActions.Count > 0)
+            {
+                var action = mainThreadActions.Dequeue();
+                action.Invoke();
+            }
+        }
     }
 
     public void Connect()
@@ -80,7 +94,10 @@ public class PhoenixChatClient : MonoBehaviour
 
             if (msg.@event == "message")
             {
-                OnChatMessage?.Invoke(msg);
+                lock (mainThreadActions)
+                {
+                    mainThreadActions.Enqueue(() => OnChatMessage?.Invoke(msg));
+                }
             }
             else if (msg.@event == "phx_reply")
             {
