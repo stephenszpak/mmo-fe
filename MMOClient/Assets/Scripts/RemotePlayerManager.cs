@@ -20,7 +20,7 @@ public class RemotePlayerManager : MonoBehaviour
     {
         if (chatClient == null)
         {
-            chatClient = FindObjectOfType<PhoenixChatClient>();
+            chatClient = Object.FindFirstObjectByType<PhoenixChatClient>();
             if (chatClient == null)
             {
                 Debug.LogError("RemotePlayerManager: No PhoenixChatClient found");
