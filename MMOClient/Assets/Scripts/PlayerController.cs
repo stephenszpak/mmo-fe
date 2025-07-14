@@ -23,6 +23,10 @@ public class PlayerController : NetworkedEntity
     {
         controller = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
+        if (animator == null)
+            Debug.LogWarning("PlayerController could not find an Animator component on the GameObject.");
+        else
+            Debug.Log($"Animator found: {animator.runtimeAnimatorController?.name}");
         udpSender = GetComponent<UdpMovementSender>();
         lastPosition = transform.position;
     }
@@ -83,7 +87,10 @@ public class PlayerController : NetworkedEntity
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
             jumpQueued = false;
             if (animator != null)
+            {
                 animator.SetBool("isJumping", true);
+                Debug.Log("Jump triggered - setting isJumping true");
+            }
         }
 
         velocity.y += gravity * Time.deltaTime;
@@ -109,10 +116,17 @@ public class PlayerController : NetworkedEntity
         float targetSpeed = horizVel.magnitude;
         animSpeed = Mathf.Lerp(animSpeed, targetSpeed, Time.deltaTime * 10f);
         animator.SetFloat("speed", animSpeed);
+        Debug.Log($"Set speed parameter to {animSpeed}");
 
         if (controller.isGrounded)
+        {
             animator.SetBool("isJumping", false);
+            Debug.Log("Grounded - setting isJumping false");
+        }
         else
+        {
             animator.SetBool("isJumping", true);
+            Debug.Log("Airborne - setting isJumping true");
+        }
     }
 }
