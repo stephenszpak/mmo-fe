@@ -10,10 +10,11 @@ public class ChatUIManager : MonoBehaviour
     public TMP_InputField inputField;
     public Button sendButton;
     public string playerName = "player1";
+    public bool chatActive = false;
 
     void Start()
     {
-
+        Cursor.lockState = CursorLockMode.Locked;
         Debug.Log("✅ ChatUIManager STARTED");
         if (chatClient != null)
         {
@@ -33,11 +34,31 @@ public class ChatUIManager : MonoBehaviour
 
     void Update()
     {
-        if (inputField != null && inputField.isFocused &&
-            (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)))
+        if (!chatActive)
         {
-            Debug.Log("⏎ Enter detected while input is focused");
-            SendFromInput();
+            if (Input.GetKeyDown(KeyCode.Return))
+            {
+                chatActive = true;
+                Cursor.lockState = CursorLockMode.None;
+                inputField.ActivateInputField();
+            }
+        }
+        else
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                chatActive = false;
+                inputField.text = string.Empty;
+                inputField.DeactivateInputField();
+                Cursor.lockState = CursorLockMode.Locked;
+            }
+            else if (Input.GetKeyDown(KeyCode.Return))
+            {
+                SendFromInput();
+                chatActive = false;
+                inputField.DeactivateInputField();
+                Cursor.lockState = CursorLockMode.Locked;
+            }
         }
     }
 
