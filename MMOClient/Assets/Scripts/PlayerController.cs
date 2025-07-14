@@ -12,6 +12,8 @@ public class PlayerController : NetworkedEntity
     private Vector3 velocity;
     private float gravity = -9.81f;
     private float animSpeed = 0f;
+    private float lastSpeed = -1f;
+    private bool lastIsJumping = false;
 
     private Vector3 lastPosition;
     private UdpMovementSender udpSender;
@@ -116,17 +118,18 @@ public class PlayerController : NetworkedEntity
         float targetSpeed = horizVel.magnitude;
         animSpeed = Mathf.Lerp(animSpeed, targetSpeed, Time.deltaTime * 10f);
         animator.SetFloat("speed", animSpeed);
-        Debug.Log($"Set speed parameter to {animSpeed}");
-
-        if (controller.isGrounded)
+        if (!Mathf.Approximately(animSpeed, lastSpeed))
         {
-            animator.SetBool("isJumping", false);
-            Debug.Log("Grounded - setting isJumping false");
+            Debug.Log($"Set speed parameter to {animSpeed}");
+            lastSpeed = animSpeed;
         }
-        else
+
+        bool isJumping = !controller.isGrounded;
+        animator.SetBool("isJumping", isJumping);
+        if (isJumping != lastIsJumping)
         {
-            animator.SetBool("isJumping", true);
-            Debug.Log("Airborne - setting isJumping true");
+            Debug.Log(isJumping ? "Airborne - setting isJumping true" : "Grounded - setting isJumping false");
+            lastIsJumping = isJumping;
         }
     }
 }
