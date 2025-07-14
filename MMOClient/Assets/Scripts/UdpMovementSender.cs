@@ -33,7 +33,6 @@ public class UdpMovementSender : MonoBehaviour
             return;
 
         byte[] packet = BuildPacket(delta);
-        Debug.Log("Sending UDP packet: " + BitConverter.ToString(packet));
         socket.SendTo(packet, serverEndPoint);
     }
 
