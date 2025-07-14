@@ -52,6 +52,7 @@ public class PhoenixChatClient : MonoBehaviour
     {
         if (socket != null)
             return;
+
         socket = new WebSocket(socketUrl);
         socket.OnOpen += (s, e) =>
         {
