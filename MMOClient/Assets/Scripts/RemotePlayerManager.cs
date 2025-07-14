@@ -34,6 +34,11 @@ public class RemotePlayerManager : MonoBehaviour
     // or { "id": "player1", "delta": {"x":0,"y":0,"z":1} }
     void OnSocketMessage(PhoenixMessage msg)
     {
+        if (msg == null)
+            return;
+
+        Debug.Log($"📩 Received event {msg.@event} from topic {msg.topic}");
+
         if (!msg.topic.StartsWith("zone:"))
             return;
 
@@ -54,7 +59,10 @@ public class RemotePlayerManager : MonoBehaviour
     void HandlePlayerJoined(object payload)
     {
         if (remotePlayerPrefab == null)
+        {
+            Debug.LogWarning("RemotePlayerManager: remotePlayerPrefab not set");
             return;
+        }
 
         // use JsonUtility to parse generic payload
         string json = UnityEngine.JsonUtility.ToJson(payload);
@@ -69,6 +77,7 @@ public class RemotePlayerManager : MonoBehaviour
         GameObject obj = Instantiate(remotePlayerPrefab, parent);
         obj.name = $"Remote_{data.id}";
         obj.transform.position = data.position.ToVector3();
+        Debug.Log($"Spawned remote player '{data.id}' at {obj.transform.position}");
         remotePlayers[data.id] = obj;
     }
 
@@ -82,6 +91,7 @@ public class RemotePlayerManager : MonoBehaviour
         {
             // simple position update using delta movement
             obj.transform.position += data.delta.ToVector3();
+            Debug.Log($"Moved remote player '{data.id}' to {obj.transform.position}");
         }
     }
 
@@ -95,6 +105,7 @@ public class RemotePlayerManager : MonoBehaviour
         {
             Destroy(obj);
             remotePlayers.Remove(data.id);
+            Debug.Log($"Removed remote player '{data.id}'");
         }
     }
 

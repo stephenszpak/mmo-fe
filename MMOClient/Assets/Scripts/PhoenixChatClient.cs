@@ -77,6 +77,8 @@ public class PhoenixChatClient : MonoBehaviour
         {
             Debug.Log("Connected to Phoenix socket");
             JoinChannel(globalTopic);
+            // Join the player's current zone for remote player updates
+            JoinChannel("zone:zone1");
         };
         socket.OnMessage += (s, e) => HandleMessage(e);
         socket.OnError += (s, e) => Debug.LogError("WebSocket error: " + e.Message);
