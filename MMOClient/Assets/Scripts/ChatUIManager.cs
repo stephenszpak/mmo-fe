@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Newtonsoft.Json;
 
 public class ChatUIManager : MonoBehaviour
 {
@@ -92,7 +93,12 @@ public class ChatUIManager : MonoBehaviour
         if (msg.payload == null)
             return;
 
-        string line = $"[{msg.payload.from}] {msg.payload.text}";
+        // Deserialize into ChatPayload since PhoenixMessage now stores payload as object
+        var payload = JsonConvert.DeserializeObject<ChatPayload>(msg.payload.ToString());
+        if (payload == null)
+            return;
+
+        string line = $"[{payload.from}] {payload.text}";
         chatHistoryText.text += line + "\n";
         Canvas.ForceUpdateCanvases();
         scrollRect.verticalNormalizedPosition = 0f;
