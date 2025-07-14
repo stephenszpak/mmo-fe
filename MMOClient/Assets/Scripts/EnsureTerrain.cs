@@ -5,7 +5,7 @@ public class EnsureTerrain : MonoBehaviour
     void Start()
     {
         // Create Terrain if it doesn't exist
-        if (FindObjectOfType<Terrain>() == null)
+        if (Object.FindAnyObjectByType<Terrain>() == null)
         {
             GameObject terrainGO = new GameObject("Terrain");
             terrainGO.transform.position = Vector3.zero;
